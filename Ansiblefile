@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+
+site "https://galaxy.ansible.com/api/v1"
