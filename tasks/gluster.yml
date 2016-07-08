@@ -1,24 +1,64 @@
 ---
 
 # Ensure that Glusterfs is installed
-- name: Install repositories.
+- name: Storage - gluster - Install repositories.
   apt_repository:
     repo: "ppa:gluster/glusterfs-3.7"
 
-- name: Update APT cache
+- name: Storage - gluster - Update APT cache
   apt:
     update_cache: yes
     cache_valid_time: 3600
 
-- name: Ensure GlusterFS is installed.
+- name: Storage - gluster - Install GlusterFS server
   apt:
-    name: "{{ item }}"
+    name: glusterfs-server
     state: installed
-  with_items:
-    - glusterfs-server
-    - glusterfs-client
+  when: storage_server is defined
 
-# Assemble the Clustering
-# Create the volumes
-# Set options
-# Clean up peers
+- name: Storage - gluster - Install GlusterFS client
+  apt:
+    name: glusterfs-client
+    state: installed
+  when: storage_client is defined
+
+# wait for gluster to Start
+
+- name: Storage - gluster - Assemble the Cluster and create the first volume
+  gluster_volume:
+    state: present
+    name: "{{item}}"
+    brick: "{{storage_server.mountpoint}}/{{item}}"
+    replicas: "{{storage_server.nodes |count}}"
+    cluster: "{{storage_server.nodes |join(',') }}"
+    host: "{{ansible_default_ipv4.address}}"
+    start_on_create: no
+  run_once: true
+  with_items: storage_server.volumes
+  when: storage_server is defined and storage_server.mountpoint is defined and storage_server.volumes is defined and storage_server.nodes is defined
+
+# wait for cluster to assemble
+
+- name: Storage - gluster - set volume options
+  gluster_volume:
+    state: present
+    name: "{{item}}"
+    options: "{{storage_server.volume_options}}"
+  run_once: true
+  with_items: storage_server.volumes
+  when: storage_server is defined and storage_server.volumes is defined and storage_server.volume_options is defined
+
+- name: Storage - gluster - Start volumes
+  gluster_volume:
+   state: started
+   name: "{{item}}"
+  run_once: true
+  with_items: storage_server.volumes
+  when: storage_server is defined and storage_server.volumes is defined
+
+# wait for volume to start
+
+- name: Storage - gluster - Detach dead peers
+  shell: "for i in $(/usr/sbin/gluster peer status |grep -B3 'Disconnected' |grep 'Hostname' |awk '{print $2}'); do /usr/sbin/gluster peer detach $i force; done"
+  run_once: true
+  when: storage_server is defined
