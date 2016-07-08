@@ -1,0 +1,21 @@
+---
+
+# Add Gluster repo
+- name: Install repositories.
+  apt_repository:
+    repo: "ppa:gluster/glusterfs-3.7"
+
+# Update APT cache
+- name: Update APT cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+# Install Gluster
+- name: Ensure GlusterFS is installed.
+  apt:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - glusterfs-server
+    - glusterfs-client
