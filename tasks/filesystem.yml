@@ -1,6 +1,36 @@
 ---
 
-# Ensure that the fs exists
-# Ensure that the fs is in the fstab
-# Ensure that the fs is mounted
-# Ensure that volume directories exists
+#
+- name: Storage - filesystem: Create fs
+  filesystem:
+    fstype: storage_server.fstype
+    dev: storage_server.device
+  when: storage_server is defined and storage_server.device is defined
+
+- name: Storage - filesystem: Create mountpoint
+  file:
+    path: storage_server.mountpoint
+    state: directory
+    mode: {{storage_server.mode |default('0755')}}
+    owner: {{storage_server.owner |default('nobody')}}
+    group: {{storage_server.group |default('nogroup')}}
+  when: storage_server is defined and storage_server.mountpoint is defined
+
+
+- name: Storage - filesystem: Ensure that the fs is mounted
+  mount:
+    name: storage_server.mountpoint
+    src: storage_server.device
+    fstype: "{{storage_server.fstype |default('ext4')}}"
+    state: mounted
+  when: storage_server is defined and storage_server.device is defined and storage_server.mountpoint is defined
+
+- name: Create the volume directories
+  file:
+    path: "{{storage_server.mountpoint}}/{{item}}"
+    state: directory
+    mode: "{{storage_server.mode |default('0755')}}"
+    owner: "{{storage_server.owner |default('nobody')}}"
+    group: "{{storage_server.group |default('nogroup')}}"
+  with_items: storage_server.volumes
+  when: storage_server is defined and storage_server.mountpoint is defined and storage_server.volumes
