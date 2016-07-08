@@ -2,7 +2,7 @@
 
 - name: Storage filesystem - Create fs
   filesystem:
-    fstype: storage_server.fstype
+    fstype: "{{storage_server.fstype |default('ext4')}}"
     dev: "{{storage_server.device}}"
   when: storage_server is defined and storage_server.device is defined
 
