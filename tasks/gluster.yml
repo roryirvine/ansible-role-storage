@@ -31,7 +31,7 @@
     brick: "{{storage_server.mountpoint}}/{{item}}"
     replicas: "{{storage_server.nodes |count}}"
     cluster: "{{storage_server.nodes |join(',') }}"
-    host: ansible_default_ipv4.address
+    host: "{{ansible_default_ipv4.address}}"
     start_on_create: no
   run_once: true
   with_items: storage_server.volumes
