@@ -27,7 +27,7 @@
 - name: Storage - gluster - Assemble the Cluster and create the first volume
   gluster_volume:
     state: present
-    name: item
+    name: "{{item}}"
     brick: "{{storage_server.mountpoint}}/{{item}}"
     replicas: "{{storage_server.nodes |count}}"
     cluster: "{{storage_server.nodes |join(',') }}"
@@ -42,7 +42,7 @@
 - name: Storage - gluster - set volume options
   gluster_volume:
     state: present
-    name: item
+    name: "{{item}}"
     options: "{{storage_server.volume_options}}"
   run_once: true
   with_items: storage_server.volumes
@@ -51,7 +51,7 @@
 - name: Storage - gluster - Start volumes
   gluster_volume:
    state: started
-   name: item
+   name: "{{item}}"
   run_once: true
   with_items: storage_server.volumes
   when: storage_server is defined and storage_server.volumes is defined
