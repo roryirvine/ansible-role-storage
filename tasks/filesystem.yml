@@ -1,0 +1,6 @@
+---
+
+# Ensure that the fs exists
+# Ensure that the fs is in the fstab
+# Ensure that the fs is mounted
+# Ensure that volume directories exists

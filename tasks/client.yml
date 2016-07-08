@@ -1,0 +1,6 @@
+---
+
+# Ensure that cluster has been joined
+# Ensure that volumes are mounted
+# Set options
+# NFS caching
