@@ -1,13 +1,12 @@
 ---
 
-#
-- name: Storage - filesystem: Create fs
+- name: Storage filesystem - Create fs
   filesystem:
     fstype: storage_server.fstype
     dev: storage_server.device
   when: storage_server is defined and storage_server.device is defined
 
-- name: Storage - filesystem: Create mountpoint
+- name: Storage filesystem - Create mountpoint
   file:
     path: storage_server.mountpoint
     state: directory
@@ -17,7 +16,7 @@
   when: storage_server is defined and storage_server.mountpoint is defined
 
 
-- name: Storage - filesystem: Ensure that the fs is mounted
+- name: Storage filesystem - Ensure that the fs is mounted
   mount:
     name: storage_server.mountpoint
     src: storage_server.device
@@ -25,7 +24,7 @@
     state: mounted
   when: storage_server is defined and storage_server.device is defined and storage_server.mountpoint is defined
 
-- name: Create the volume directories
+- name: Storage filesystem -  Create the volume directories
   file:
     path: "{{storage_server.mountpoint}}/{{item}}"
     state: directory
