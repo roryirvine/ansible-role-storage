@@ -24,7 +24,7 @@
 
 # wait for gluster to Start
 
-- name: Storage - gluster - Assemble the Cluster and create the first volume
+- name: Storage - gluster - Assemble the Cluster and create the volumes
   gluster_volume:
     state: present
     name: "{{item}}"
@@ -32,6 +32,7 @@
     replicas: "{{storage_server.nodes |count}}"
     cluster: "{{storage_server.nodes |join(',') }}"
     host: "{{ansible_default_ipv4.address}}"
+    options: "{{storage_server.volume_options}}"
     start_on_create: no
   run_once: true
   with_items: storage_server.volumes
