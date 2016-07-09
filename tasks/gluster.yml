@@ -40,14 +40,14 @@
 
 # wait for cluster to assemble
 
-- name: Storage - gluster - set volume options
-  gluster_volume:
-    state: present
-    name: "{{item}}"
-    options: "{{storage_server.volume_options}}"
-  run_once: true
-  with_items: storage_server.volumes
-  when: storage_server is defined and storage_server.volumes is defined and storage_server.volume_options is defined
+#- name: Storage - gluster - set volume options
+#  gluster_volume:
+#    state: present
+#    name: "{{item}}"
+#    options: "{{storage_server.volume_options}}"
+#  run_once: true
+#  with_items: storage_server.volumes
+#  when: storage_server is defined and storage_server.volumes is defined and storage_server.volume_options is defined
 
 - name: Storage - gluster - Start volumes
   gluster_volume:
