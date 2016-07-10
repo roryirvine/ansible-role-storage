@@ -1,5 +1,8 @@
 ---
 
 - include: filesystem.yml
+  when: storage_server is defined
 - include: gluster.yml
+  when: storage_server is defined
 - include: client.yml
+  when: storage_client is defined
