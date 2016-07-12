@@ -24,7 +24,7 @@
 
 - name: Storage - gluster - List all web servers
   debug: msg="{{ hostvars[item].ec2_launch_time }}"
-  with_items: groups['tag_Name_{{ gluster_product }}_web_{{ env }}']
+  with_items: groups['tag_Name_storage_{{ env }}']
   register: s
   no_log: true
   when: env != "development" # TODO: fix local!
