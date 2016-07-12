@@ -22,7 +22,7 @@
 
 # wait for gluster to Start
 
-- name: Storage - gluster - List all web servers
+- name: Storage - gluster - List all storage servers
   debug: msg="{{ hostvars[item].ec2_launch_time }}"
   with_items: groups['tag_Name_storage_{{ env }}']
   register: s
@@ -36,14 +36,6 @@
   register: s_sorted
   run_once: true
   when: env != "local"
-
-- name: debug count
-  debug:
-    msg: "{{s_sorted.msg |count}}"
-
-- name: debug cluster
-  debug:
-    msg: "{{s_sorted.msg |join(',')}}"
 
 - name: Storage - gluster - Assemble the Cluster and create the volumes
   gluster_volume:
