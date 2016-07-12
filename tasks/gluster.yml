@@ -14,13 +14,11 @@
   apt:
     name: glusterfs-server
     state: installed
-  when: storage_server is defined
 
 - name: Storage - gluster - Install GlusterFS client
   apt:
     name: glusterfs-client
     state: installed
-  when: storage_client is defined
 
 # wait for gluster to Start
 
@@ -36,7 +34,6 @@
     start_on_create: no
   run_once: true
   with_items: storage_server.volumes
-  when: storage_server is defined and storage_server.mountpoint is defined and storage_server.volumes is defined and storage_server.nodes is defined
 
 # wait for cluster to assemble
 
@@ -46,11 +43,9 @@
    name: "{{item}}"
   run_once: true
   with_items: storage_server.volumes
-  when: storage_server is defined and storage_server.volumes is defined
 
 # wait for volume to start
 
 - name: Storage - gluster - Detach dead peers
   shell: "for i in $(/usr/sbin/gluster peer status |grep -B3 'Disconnected' |grep 'Hostname' |awk '{print $2}'); do /usr/sbin/gluster peer detach $i force; done"
   run_once: true
-  when: storage_server is defined
