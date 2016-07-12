@@ -22,18 +22,42 @@
 
 # wait for gluster to Start
 
+- name: Storage - gluster - List all web servers
+  debug: msg="{{ hostvars[item].ec2_launch_time }}"
+  with_items: groups['tag_Name_{{ gluster_product }}_web_{{ env }}']
+  register: s
+  no_log: true
+  when: env != "development" # TODO: fix local!
+  run_once: true
+
+- name: Storage - gluster - Write out age-sorted list of web servers
+  debug:
+    msg: "{{ s.results | sort(attribute='msg') |map(attribute='item') |list }}"
+  register: s_sorted
+  run_once: true
+  when: env != "local"
+
+- name: debug count
+  debug:
+    msg: "{{s_sorted.msg |count}}"
+
+- name: debug cluster
+  debug:
+    msg: "{{s_sorted.msg |join(',')}}"
+
 - name: Storage - gluster - Assemble the Cluster and create the volumes
   gluster_volume:
     state: present
     name: "{{item}}"
     brick: "{{storage_server.mountpoint}}/{{item}}"
-    replicas: "{{storage_server.nodes |count}}"
-    cluster: "{{storage_server.nodes |join(',') }}"
+    replicas: "{{ s_sorted.msg |count}}"
+    cluster: "{{ s_sorted.msg |join(',') }}"
     host: "{{ansible_default_ipv4.address}}"
     options: "{{storage_server.volume_options}}"
     start_on_create: no
   run_once: true
   with_items: storage_server.volumes
+  when: env != "local"
 
 # wait for cluster to assemble
 
@@ -43,9 +67,11 @@
    name: "{{item}}"
   run_once: true
   with_items: storage_server.volumes
+  when: env != "local"
 
 # wait for volume to start
 
 - name: Storage - gluster - Detach dead peers
   shell: "for i in $(/usr/sbin/gluster peer status |grep -B3 'Disconnected' |grep 'Hostname' |awk '{print $2}'); do /usr/sbin/gluster peer detach $i force; done"
   run_once: true
+  when: env != "local"
