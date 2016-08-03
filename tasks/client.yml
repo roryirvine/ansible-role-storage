@@ -56,7 +56,7 @@
     name: "{{ storage_client.mountpoint }}/{{ item }}"
     src: "{{ nfs_server.msg }}:/{{ item }}"
     fstype: nfs
-    opts: "vers=3,mountvers=3,retrans=2,rsize=1048576,wsize=1048576,namlen=255,soft,proto=tcp,timeo=600,_netdev,auto,fsc,relatime,tcp,rsize=8192,wsize=8192"
+    opts: "vers=3,mountvers=3,retrans=2,rsize=1048576,wsize=1048576,namlen=255,soft,proto=tcp,timeo=600,_netdev,auto,fsc,relatime,tcp"
     state: mounted
   with_items: storage_client.volumes
   when: env != "local"
