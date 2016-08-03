@@ -27,7 +27,7 @@
   with_items: groups['tag_Name_storage_{{ env }}']
   register: s
   no_log: true
-  when: env != "development" # TODO: fix local!
+  when: env != "local" # TODO: fix local!
   run_once: true
 
 - name: Storage - gluster - Write out age-sorted list of web servers
