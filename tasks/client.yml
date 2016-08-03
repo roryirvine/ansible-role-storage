@@ -48,8 +48,8 @@
 
 - name: Storage - client - Ensure gluster volumes are mounted
   mount:
-    name: "{{ storage_client.mountpoint }}"/"{{ item }}"
-    src: "{{ nfs_server.msg }}":/"{{ item }}"
+    name: "{{ storage_client.mountpoint }}/{{ item }}"
+    src: "{{ nfs_server.msg }}:/{{ item }}"
     fstype: nfs
     opts: "defaults,_netdev,auto,fsc,relatime"
     state: mounted
