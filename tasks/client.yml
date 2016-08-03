@@ -22,6 +22,15 @@
     name: cachefilesd
     state: started
 
+- name: Storage filesystem - Create mountpoint
+  file:
+    path: "{{storage_client.mountpoint}}"
+    state: directory
+    mode: "{{storage_client.mode |default('0755')}}"
+    owner: "{{storage_client.owner |default('nobody')}}"
+    group: "{{storage_client.group |default('nogroup')}}"
+  when: storage_client is defined and storage_client.mountpoint is defined
+
 - name: Storage - client - List all storage servers
   debug: msg="{{ hostvars[item].ec2_launch_time }}"
   with_items: groups['tag_Name_storage_{{ env }}']
@@ -37,11 +46,12 @@
   no_log: true
   when: env != "local"
 
-- name: Storage - client - Ensure gluster volume is mounted
+- name: Storage - client - Ensure gluster volumes are mounted
   mount:
-    name: "{{ gluster_mount_dir }}"
-    src: "{{ nfs_server }}:{{ gluster_volume_name }}"
+    name: "{{ storage_client.mountpoint }}/{{ item }}"
+    src: "{{ nfs_server }}:{{ storage_client.mountpoint }}/{{ item }}"
     fstype: nfs
     opts: "defaults,_netdev,auto,fsc,relatime"
     state: mounted
+  with_items: storage_client.volumes
   when: env != "local"
