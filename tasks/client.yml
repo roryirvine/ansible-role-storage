@@ -5,6 +5,11 @@
     name: cachefilesd
     state: installed
 
+- name: Storage - client - Ensure that nfs-common is installed
+  apt:
+    name: nfs-common
+    state: installed
+
 - name: Storage - client - Edit cachefilesd init.d script
   lineinfile:
     dest: /etc/init.d/cachefilesd
