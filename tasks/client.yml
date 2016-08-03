@@ -1,6 +1,47 @@
 ---
 
-# Ensure that cluster has been joined
-# Ensure that volumes are mounted
-# Set options
-# NFS caching
+- name: Storage - client - Ensure that cachefilesd is installed
+  apt:
+    name: cachefilesd
+    state: installed
+
+- name: Storage - client - Edit cachefilesd init.d script
+  lineinfile:
+    dest: /etc/init.d/cachefilesd
+    regexp: "^#STARTTIME=2"
+    line: "STARTTIME=2"
+
+- name: Storage - client - Edit cachefilesd defaults
+  replace:
+    dest: /etc/default/cachefilesd
+    regexp: "^#RUN=yes"
+    replace: "RUN=yes"
+
+- name: Storage - client - Ensure that cachefilesd is started
+  service:
+    name: cachefilesd
+    state: started
+
+- name: Storage - client - List all storage servers
+  debug: msg="{{ hostvars[item].ec2_launch_time }}"
+  with_items: groups['tag_Name_storage_{{ env }}']
+  register: s
+  no_log: true
+  when: env != "local" # TODO: fix local!
+  run_once: true
+
+- name: Storage - client - Write out age-sorted list of storage servers
+  debug:
+    msg: "{{ s.results | sort(attribute='msg') |map(attribute='item') |list | first }}"
+  register: nfs_server
+  no_log: true
+  when: env != "local"
+
+- name: Storage - client - Ensure gluster volume is mounted
+  mount:
+    name: "{{ gluster_mount_dir }}"
+    src: "{{ nfs_server }}:{{ gluster_volume_name }}"
+    fstype: nfs
+    opts: "defaults,_netdev,auto,fsc,relatime"
+    state: mounted
+  when: env != "local"

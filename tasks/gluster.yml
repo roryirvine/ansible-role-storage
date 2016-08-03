@@ -30,7 +30,7 @@
   when: env != "local" # TODO: fix local!
   run_once: true
 
-- name: Storage - gluster - Write out age-sorted list of web servers
+- name: Storage - gluster - Write out age-sorted list of storage servers
   debug:
     msg: "{{ s.results | sort(attribute='msg') |map(attribute='item') |list }}"
   register: s_sorted
